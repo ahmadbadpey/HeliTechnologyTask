@@ -6,7 +6,9 @@ use App\Models\Task;
 use App\Models\User;
 use App\Repositories\TaskRepositoryInterface;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class TaskRepository extends BaseRepository implements TaskRepositoryInterface
 {
@@ -30,4 +32,20 @@ class TaskRepository extends BaseRepository implements TaskRepositoryInterface
     {
         return Task::where('user_id' , $user->id)->get();
     }
+
+    public function changeStatus(int $taskId, bool $isCompleted  , $user): void
+    {
+        $task = $this->model->find($taskId);
+
+        if ($task === null) {
+            throw new ModelNotFoundException('Task not found');
+        }
+        if ($task->user_id !== $user->id) {
+            throw new HttpException(403);
+        }
+
+        $task->completed = $isCompleted;
+        $task->save();
+    }
+
 }

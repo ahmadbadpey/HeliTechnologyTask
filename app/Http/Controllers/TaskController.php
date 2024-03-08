@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TaskRequest;
 use App\Repositories\TaskRepositoryInterface;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class TaskController extends Controller
 {
@@ -85,4 +87,26 @@ class TaskController extends Controller
     {
         //
     }
+
+
+    public function updateStatus(Request $request): JsonResponse
+    {
+        $isCompleted = $request->get('completed');
+        $taskId = $request->get('task_id');
+
+        try {
+            $this->taskRepository->changeStatus($taskId , $isCompleted , auth()->user());
+
+            return response()->json([
+                    'success' => true
+                ]
+            );
+        } catch (ModelNotFoundException $exception) {
+            abort(404);
+        } catch (HttpException $exception) {
+            abort(403);
+        }
+
+    }
+
 }
