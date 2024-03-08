@@ -3,16 +3,32 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\TaskRequest;
+use App\Repositories\TaskRepositoryInterface;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
+
+    private $taskRepository;
+
+    public function __construct(TaskRepositoryInterface $taskRepository)
+    {
+        $this->taskRepository = $taskRepository;
+    }
+
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        $user = Auth::user();
+
+        $tasks = $this->taskRepository->findByUser($user);
+        return response()->json([ 'tasks' => $tasks ] , 200);
     }
 
     /**
@@ -26,9 +42,16 @@ class TaskController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(TaskRequest $request)
+    public function store(TaskRequest $request): Model
     {
-        //
+
+        $data = $request->all();
+
+        if (Auth::user()) {
+            $data['user_id'] = Auth::user()->id;
+        }
+
+        return $this->taskRepository->create($data);
     }
 
     /**
@@ -50,7 +73,7 @@ class TaskController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request , string $id)
     {
         //
     }

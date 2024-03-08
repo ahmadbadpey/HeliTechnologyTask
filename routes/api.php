@@ -16,11 +16,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login' , [ AuthController::class , 'login' ]);
 
 Route::prefix('user')
-    ->middleware('auth:sanctum')
-    ->group(function () {
-        Route::resource('tasks', TaskController::class);
+     ->middleware('auth:sanctum')
+     ->group(function () {
+         Route::resource('tasks' , TaskController::class);
 
-    });
+     });
