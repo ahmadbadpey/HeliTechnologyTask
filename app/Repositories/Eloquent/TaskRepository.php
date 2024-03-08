@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Eloquent;
 
+use App\Events\TaskUpdatedStatus;
 use App\Models\Task;
 use App\Models\User;
 use App\Repositories\TaskRepositoryInterface;
@@ -46,6 +47,10 @@ class TaskRepository extends BaseRepository implements TaskRepositoryInterface
 
         $task->completed = $isCompleted;
         $task->save();
+
+        //Call This Event to Send notify to other Devices about task Status
+        event(new TaskUpdatedStatus($task));
+
     }
 
 }
